@@ -1,50 +1,33 @@
 # CINEMA M3U PLAYER
 
-PWA para ler playlists M3U, organizar títulos e reproduzir fontes HTTP(S) autorizadas.
+PWA para organizar uma biblioteca pessoal a partir de playlists M3U e fontes autorizadas.
 
-## Estrutura inicial
+## Catálogo mestre
 
-- `index.html`: interface principal.
-- `js/m3u-parser.js`: leitor M3U/EXTINF.
-- `js/catalog.js`: cards do catálogo.
-- `js/player.js`: reprodução HLS (Hls.js) e MP4.
-- `js/search.js`: pesquisa e filtros.
-- `js/favorites.js`: favoritos e histórico.
-- `js/cache.js`: IndexedDB local.
-- `js/config.js`: fontes de playlist.
-- `data/playlists/`: playlists públicas e não confidenciais.
-- `sw.js` e `manifest.json`: suporte PWA.
+- Entrada de origem: `Cinema.txt` na raiz do repositório.
+- Gerador: `scripts/build_catalog.py`.
+- Saída: `data/catalog/catalogo-cinema.json`.
+- O workflow `Build Cinema Catalog` pode ser executado manualmente em Actions ou é acionado quando `Cinema.txt` ou o gerador muda.
+- O aplicativo carrega primeiro o JSON e mantém uma cópia local no IndexedDB por 24 horas. A playlist original só é usada como fallback.
 
-## Adicionar playlists por URL
+## Privacidade e links
 
-Edite `js/config.js` e acrescente uma entrada em `PLAYLIST_SOURCES`:
+Este repositório é público. O gerador remove do catálogo publicado URLs que contenham parâmetros de autenticação (`token`, `auth`, `key`, `signature`, `sig`). Os registros e metadados são preservados, mas esses itens aparecem sem reprodução até que uma fonte autorizada seja importada localmente. Não publique tokens ou playlists privadas.
 
-```js
-{ name: 'Minha playlist', url: 'https://servidor.exemplo/lista.m3u' }
-```
+## Biblioteca cumulativa
 
-A URL precisa permitir acesso pelo navegador (CORS). O endereço do Gist Cinema.m3u já está configurado como fonte inicial.
+Novas playlists importadas pela engrenagem são armazenadas no IndexedDB do aparelho. O app não sobrescreve o catálogo mestre. A deduplicação automática usa URL exata quando disponível; registros sem URL permanecem separados. A futura etapa de descoberta deve comparar metadados e enviar candidatos para aprovação antes de incorporar novas entradas.
 
-## Adicionar arquivo ao repositório
+## Estrutura
 
-Coloque playlists que podem ser públicas em `data/playlists/`. O nome inicial opcional é `cinema.m3u`. Não coloque tokens, links temporários, credenciais ou conteúdo privado em um repositório público.
+- `js/m3u-parser.js`: leitor M3U compatível com importação local.
+- `js/catalog.js`: cards e organização de temporadas.
+- `js/app.js`: carrega o catálogo mestre, fallback e playlists locais.
+- `js/cache.js`: IndexedDB.
+- `scripts/build_catalog.py`: gera JSON a partir de Cinema.txt.
+- `.github/workflows/build-cinema-catalog.yml`: execução automatizada.
+- `data/catalog/`: catálogo mestre gerado.
 
-## Importação privada no aparelho
+## Publicar
 
-Use a engrenagem no aplicativo, defina um PIN de quatro dígitos e selecione arquivos M3U. Os arquivos importados são processados e guardados no IndexedDB do navegador; não são enviados ao GitHub nem a um servidor. Para aparecer em outro aparelho, será necessário importar novamente.
-
-**Limite de segurança:** como o aplicativo é hospedado como site estático, o PIN é uma barreira local de privacidade casual, não autenticação forte. Alguém com acesso técnico ao navegador/dispositivo pode contorná-la ou apagar os dados locais. Não use esse mecanismo para proteger segredos.
-
-## Reproduzir
-
-- MP4: reprodução nativa do navegador.
-- M3U8/HLS: Hls.js em navegadores compatíveis; Safari pode usar HLS nativo dependendo do ambiente.
-- Reprodução pode falhar se a origem estiver indisponível, exigir autorização, bloquear CORS ou fornecer codec incompatível. O aplicativo não contorna essas restrições.
-
-## Publicar no GitHub Pages
-
-No repositório, abra **Settings → Pages**, selecione **Deploy from a branch**, escolha **main** e a pasta **/(root)** e salve. Aguarde a publicação e abra a URL informada pelo GitHub. O Service Worker/PWA exige HTTPS (GitHub Pages fornece HTTPS).
-
-## Observação sobre escala
-
-O parser percorre milhares de linhas, mas a interface desenha 60 cards por vez para reduzir o consumo de memória no celular. Playlists muito grandes são mantidas no IndexedDB após a primeira leitura.
+GitHub Pages: Settings → Pages → Deploy from a branch → main → /(root).
