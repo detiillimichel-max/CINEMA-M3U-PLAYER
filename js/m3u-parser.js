@@ -6,7 +6,7 @@ export function parseM3U(text,source='Playlist'){
  for(const rawLine of lines){const line=rawLine.trim();if(!line)continue;
   if(line.startsWith('#EXTINF')){const comma=line.indexOf(',');const title=comma>=0?line.slice(comma+1).trim():(attr(line,'tvg-name')||'Sem título');meta={title,logo:attr(line,'tvg-logo'),group:attr(line,'group-title')||attr(line,'group'),id:attr(line,'tvg-id'),raw:line};continue;}
   if(line.startsWith('#'))continue;
-  if(/^https?:\/\//i.test(line)){const title=meta?.title||line.split('/').pop().split('?')[0]||'Vídeo sem título';const group=meta?.group||'Outros';const ep=episodeInfo(title);items.push({id:crypto.randomUUID?.()||String(items.length)+'-'+Math.random(),title,url:line,logo:meta?.logo||'',group,category:classify(title,group),season:ep?.season??null,episode:ep?.episode??null,source,addedAt:Date.now()});meta=null;}
+  if(/^https?:\/\//i.test(line)){const title=meta?.title||line.split('/').pop().split('?')[0]||'Vídeo sem título';const group=meta?.group||'Outros';const ep=episodeInfo(title);items.push({id:line,title,url:line,logo:meta?.logo||'',group,category:classify(title,group),season:ep?.season??null,episode:ep?.episode??null,source,addedAt:Date.now()});meta=null;}
  }
  return items;
 }
