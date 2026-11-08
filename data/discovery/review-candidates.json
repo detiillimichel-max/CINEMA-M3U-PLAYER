@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "master_record_count": 7886,
+  "incoming_record_count": 0,
+  "new_candidates": [],
+  "possible_matches_requiring_review": [],
+  "exact_duplicates": [],
+  "redacted_sensitive_candidates": [],
+  "approved_ready_to_merge": [],
+  "policy": "No candidate is added to the master automatically."
+}
