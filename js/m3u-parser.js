@@ -1,7 +1,7 @@
 // Leitor M3U robusto. Mantém compatibilidade: parseM3U(texto, origem) retorna array.
 function parseAttributes(input) {
   const attrs = {};
-  const re = /([\\w-]+)\\s*=\\s*("([^"]*)"|([^\\s,]+))/g;
+  const re = /([\w-]+)\s*=\s*("([^"]*)"|([^\s,]+))/g;
   let m;
   while ((m = re.exec(input)) !== null) attrs[m[1].toLowerCase()] = m[3] !== undefined ? m[3] : m[4];
   return attrs;
@@ -15,7 +15,7 @@ function splitExtinf(payload) {
   return [payload, ""];
 }
 function normalizeTitle(value) {
-  return String(value || "").normalize("NFKC").replace(/\\s+/g, " ").trim().toLocaleLowerCase("pt-BR");
+  return String(value || "").normalize("NFKC").replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR");
 }
 function classifyGroup(group) {
   const g = String(group || "").trim().toLocaleLowerCase("pt-BR");
@@ -26,12 +26,12 @@ function classifyGroup(group) {
   return group || "Outros";
 }
 function episodeInfo(title) {
-  const season = String(title || "").match(/\\bT\\s*0*(\\d+)\\s*(?:\\||[-_ ]*)/i);
-  const episode = String(title || "").match(/\\bEP\\s*0*(\\d+(?:\\s*[-–]\\s*\\d+)?)/i);
-  return { season: season ? Number(season[1]) : null, episode: episode ? episode[1].replace(/\\s+/g, "") : null };
+  const season = String(title || "").match(/\bT\s*0*(\d+)\s*(?:\||[-_ ]*)/i);
+  const episode = String(title || "").match(/\bEP\s*0*(\d+(?:\s*[-–]\s*\d+)?)/i);
+  return { season: season ? Number(season[1]) : null, episode: episode ? episode[1].replace(/\s+/g, "") : null };
 }
 export function parseM3UFull(input, source = "Playlist") {
-  const lines = String(input || "").replace(/^\\uFEFF/, "").split(/\\r?\\n/);
+  const lines = String(input || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const records = [], errors = [], orphanUrls = [], urlMap = new Map();
   let current = null, playlistMetadata = {};
   const finish = () => {
@@ -42,7 +42,7 @@ export function parseM3UFull(input, source = "Playlist") {
     const se = episodeInfo(current.title);
     let format = null;
     if (current.url) {
-      try { const p = new URL(current.url).pathname; format = p.match(/\\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() || null; } catch (_) {}
+      try { const p = new URL(current.url).pathname; format = p.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase() || null; } catch (_) {}
     }
     const query = current.url ? current.url.split("?")[1] || "" : "";
     const params = new URLSearchParams(query);
@@ -82,12 +82,12 @@ export function parseM3UFull(input, source = "Playlist") {
     if (line.startsWith("#EXTINF:")) {
       finish();
       const [meta, title] = splitExtinf(line.slice(8));
-      const dm = meta.match(/^\\s*(-?\\d+(?:\\.\\d+)?)/);
+      const dm = meta.match(/^\s*(-?\d+(?:\.\d+)?)/);
       current = { title, duration: dm ? Number(dm[1]) : null, attributes: parseAttributes(dm ? meta.slice(dm[0].length) : meta), url: null, source_line: i + 1 };
       continue;
     }
     if (line.startsWith("#")) continue;
-    if (/^https?:\\/\\//i.test(line)) {
+    if (/^https?:\/\//i.test(line)) {
       if (current && !current.url) current.url = line;
       else orphanUrls.push({ source_line: i + 1, url: line, reason: current ? "URL extra após registro preenchido" : "URL sem EXTINF" });
     }
