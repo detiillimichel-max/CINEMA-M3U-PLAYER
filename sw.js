@@ -1,4 +1,4 @@
-const CACHE="cinema-m3u-v2";
+const CACHE="cinema-m3u-v3";
 const CORE=["./","./index.html","./manifest.json","./css/style.css","./js/app.js","./js/m3u-parser.js","./js/catalog.js","./js/player.js","./js/search.js","./js/favorites.js","./js/cache.js","./js/config.js","./icons/icon.svg","./data/catalog/catalogo-cinema.json"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
