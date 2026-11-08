@@ -10,7 +10,7 @@ AUTH_KEYS = {"token", "auth", "key", "signature", "sig"}
 
 def parse_attrs(text):
     result = {}
-    for match in re.finditer(r'([\\w-]+)\\s*=\\s*("([^"]*)"|([^\\s,]+))', text):
+    for match in re.finditer(r'([\w-]+)\s*=\s*("([^"]*)"|([^\s,]+))', text):
         result[match.group(1).lower()] = match.group(3) if match.group(3) is not None else match.group(4)
     return result
 
@@ -24,7 +24,7 @@ def split_extinf(payload):
     return payload, ""
 
 def normalized(value):
-    return re.sub(r"\\s+", " ", (value or "").strip()).casefold()
+    return re.sub(r"\s+", " ", (value or "").strip()).casefold()
 
 def category_for(group):
     key = (group or "").strip().casefold()
@@ -61,8 +61,8 @@ def main():
                 public_url, redacted = None, True
         path = urllib.parse.urlsplit(raw_url or "").path
         extension = Path(path).suffix.lower().lstrip(".") or None
-        season_match = re.search(r"\\bT\\s*0*(\\d+)\\s*(?:\\||[-_ ]*)", title, re.I)
-        episode_match = re.search(r"\\bEP\\s*0*(\\d+(?:\\s*[-–]\\s*\\d+)?)", title, re.I)
+        season_match = re.search(r"\bT\s*0*(\d+)\s*(?:\||[-_ ]*)", title, re.I)
+        episode_match = re.search(r"\bEP\s*0*(\d+(?:\s*[-–]\s*\d+)?)", title, re.I)
         safe_attrs = {k:v for k,v in attrs.items() if not any(word in k.casefold() for word in ("token","secret","password","auth"))}
         index = len(records) + 1
         category = category_for(group)
@@ -92,7 +92,7 @@ def main():
         elif line.startswith("#EXTINF:"):
             finish()
             meta, title = split_extinf(line[len("#EXTINF:"):])
-            duration_match = re.match(r"\\s*(-?\\d+(?:\\.\\d+)?)", meta)
+            duration_match = re.match(r"\s*(-?\d+(?:\.\d+)?)", meta)
             duration = float(duration_match.group(1)) if duration_match else None
             attr_text = meta[duration_match.end():] if duration_match else meta
             current = {"title": title, "duration": duration, "attributes": parse_attrs(attr_text), "url": None, "line": line_number}
