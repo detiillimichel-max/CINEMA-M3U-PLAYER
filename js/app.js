@@ -66,12 +66,16 @@ async function loadSources(force=false) {
 }
 function populateCategories() {
   const select=$("categoryFilter"), current=select.value;
-  const cats=[...new Set(items.flatMap(x=>[x.category,x.group]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  const cats=[...new Set(items.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
   select.replaceChildren(new Option("Todas as categorias","Todos"),...cats.map(x=>new Option(x,x)));
   if(cats.includes(current)) select.value=current;
+  const collectionSelect=$("collectionFilter"), selectedCollection=collectionSelect.value;
+  const collections=[...new Set(items.map(x=>x.series||x.collection).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  collectionSelect.replaceChildren(new Option("Todas as coleções","Todos"),...collections.map(x=>new Option(x,x)));
+  if(collections.includes(selectedCollection)) collectionSelect.value=selectedCollection;
 }
 function applyFilters() {
-  filtered=filterItems(items,{query:$("searchInput").value,category:$("categoryFilter").value,view,favorites,history});
+  filtered=filterItems(items,{query:$("searchInput").value,category:$("categoryFilter").value,collection:$("collectionFilter").value,view,favorites,history});
   if($("sortFilter").value==="name") filtered.sort((a,b)=>a.title.localeCompare(b.title,"pt-BR"));
   if($("sortFilter").value==="recent") filtered.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
   visible=PAGE_SIZE;
@@ -92,6 +96,7 @@ async function openPlayer(item) {
 }
 $("searchInput").addEventListener("input",applyFilters);
 $("categoryFilter").addEventListener("change",applyFilters);
+$("collectionFilter").addEventListener("change",applyFilters);
 $("sortFilter").addEventListener("change",applyFilters);
 $("loadMore").onclick=()=>{visible+=PAGE_SIZE;draw();};
 document.querySelectorAll(".tab").forEach(button=>button.onclick=()=>{
