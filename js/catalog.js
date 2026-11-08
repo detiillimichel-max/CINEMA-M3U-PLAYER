@@ -32,8 +32,16 @@ export function renderCards(items, container, {favorites=new Set(), onPlay, onFa
     fav.setAttribute("aria-label", "Favoritar"); fav.onclick = e => { e.stopPropagation(); onFavorite?.(item); }; poster.append(fav);
     const info = document.createElement("div"); info.className = "card-info";
     const h = document.createElement("h3"); h.textContent = item.title || "Sem título";
-    const p = document.createElement("p"); p.textContent = item.collection || item.group || item.source || "Biblioteca";
+    const p = document.createElement("p"); p.textContent = item.series || item.collection || item.group || item.source || "Biblioteca";
     info.append(h,p);
+    if (item.season != null || item.episode != null) {
+      const episode = document.createElement("small");
+      const seasonLabel = item.season != null ? "Temporada " + item.season : "";
+      const episodeLabel = item.episode != null ? "Episódio " + item.episode : "";
+      episode.className = "episode-meta";
+      episode.textContent = [seasonLabel, episodeLabel].filter(Boolean).join(" • ");
+      info.append(episode);
+    }
     if (!item.url) { const note = document.createElement("small"); note.textContent = "Fonte protegida ou ausente"; info.append(note); }
     card.append(poster,info);
     if (item.url) card.onclick = () => onPlay?.(item);
