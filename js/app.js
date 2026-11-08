@@ -42,12 +42,8 @@ async function readFallbackSources(force=false) {
   return combined;
 }
 function mergeWithoutDuplicates(all) {
-  const byUrl=new Map(), withoutUrl=[];
-  for(const item of all) {
-    if(item.url) { if(!byUrl.has(item.url)) byUrl.set(item.url,item); }
-    else withoutUrl.push(item);
-  }
-  return [...byUrl.values(),...withoutUrl];
+  // Preserva cada entrada original do catálogo, inclusive URLs repetidas.
+  return all;
 }
 async function loadSources(force=false) {
   status("Carregando catálogo...");
