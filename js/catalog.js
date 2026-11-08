@@ -42,7 +42,15 @@ export function renderCards(items, container, {favorites=new Set(), onPlay, onFa
       episode.textContent = [seasonLabel, episodeLabel].filter(Boolean).join(" • ");
       info.append(episode);
     }
-    if (!item.url) { const note = document.createElement("small"); note.textContent = item.urlStatus === "redacted_auth" ? "Link protegido — importe a playlist autorizada" : "Fonte ausente"; info.append(note); }
+    if (item.url) {
+      const source = document.createElement("a");
+      source.className = "source-link"; source.href = item.url; source.target = "_blank";
+      source.rel = "noopener noreferrer"; source.textContent = "Abrir fonte em outra aba ↗";
+      source.addEventListener("click", event => event.stopPropagation()); info.append(source);
+    } else {
+      const note = document.createElement("small");
+      note.textContent = item.urlStatus === "redacted_auth" ? "Link protegido por autenticação — não publicado" : "Endereço não encontrado na fonte"; info.append(note);
+    }
     card.append(poster,info);
     if (item.url) card.onclick = () => onPlay?.(item);
     frag.append(card);
