@@ -1,0 +1,5 @@
+const CACHE='cinema-m3u-v1';
+const CORE=['./','./index.html','./manifest.json','./css/style.css','./js/app.js','./js/m3u-parser.js','./js/catalog.js','./js/player.js','./js/search.js','./js/favorites.js','./js/cache.js','./js/config.js','./icons/icon.svg'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));}return res;}).catch(()=>caches.match('./index.html'))));});
