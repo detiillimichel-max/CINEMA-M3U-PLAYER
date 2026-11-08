@@ -108,15 +108,18 @@ def main():
     duplicate_groups = [{"url": url, "occurrences": len(ids), "record_ids": ids}
                         for url, ids in duplicate_map.items() if len(ids) > 1]
     categories = collections.Counter(r["category"] for r in records)
+    groups = collections.Counter(r["group"] for r in records)
     formats = collections.Counter(r["format"] or "unknown" for r in records)
     series = {r["series"] for r in records if r["series"]}
+    if records and not any(r["attributes"] for r in records):
+        raise SystemExit("Falha de leitura: nenhum metadado EXTINF foi reconhecido; catálogo não será publicado.")
     stats = {
         "extinf_records": len(records), "records_with_url": sum(1 for r in records if r["url"] or r["url_redacted"]),
         "unique_public_urls": len(duplicate_map), "duplicate_url_groups": len(duplicate_groups),
         "duplicate_url_extra_occurrences": sum(x["occurrences"] - 1 for x in duplicate_groups),
         "redacted_auth_urls": sum(1 for r in records if r["url_redacted"]),
         "orphan_urls": len(orphan_urls), "distinct_series_groups": len(series),
-        "categories": dict(categories), "formats": dict(formats)
+        "categories": dict(categories), "groups": dict(groups), "formats": dict(formats)
     }
     result = {
         "schema_version": "1.1.0", "catalog_id": "cinema-m3u-master",
