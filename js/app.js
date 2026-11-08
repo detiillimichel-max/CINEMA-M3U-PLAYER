@@ -12,6 +12,7 @@ function fromMaster(record) {
   return {...record, id:record.id, title:record.title, url:record.url || null,
     logo:record.logo || "", group:record.group || record.category || "Outros",
     category:record.category || "Outros", source:record.source || "Catálogo mestre",
+    urlStatus:record.url_status || (record.url ? "https_unverified" : "missing"),
     addedAt:record.addedAt || 0};
 }
 async function readMaster(force=false) {
@@ -85,10 +86,11 @@ function applyFilters() {
 }
 function draw() {
   renderCards(filtered.slice(0,visible),$("catalog"),{favorites,onPlay:openPlayer,onFavorite:async item=>{favorites=await toggleFavorite(item.id);applyFilters();}});
+  $("loadMore").textContent=visible<filtered.length?`Carregar mais (${Math.min(PAGE_SIZE,filtered.length-visible).toLocaleString("pt-BR")})`:"";
   $("loadMore").hidden=visible>=filtered.length;
 }
 async function openPlayer(item) {
-  if(!item.url) { $("playerMessage").textContent="Este registro não possui uma URL pública no catálogo. Se você tiver uma fonte autorizada, importe-a pela área privada."; $("playerSection").hidden=false; return; }
+  if(!item.url) { $("playerMessage").textContent="Este registro não possui uma URL pública no catálogo. Importe uma playlist autorizada e atualizada pela área privada para reproduzi-lo neste aparelho."; $("playerSection").hidden=false; return; }
   $("playerSection").hidden=false; $("nowTitle").textContent=item.title; $("playerMessage").textContent="";
   $("playerSection").scrollIntoView({behavior:"smooth",block:"start"});
   await playMedia($("videoPlayer"),item,m=>$("playerMessage").textContent=m);

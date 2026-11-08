@@ -42,7 +42,7 @@ export function renderCards(items, container, {favorites=new Set(), onPlay, onFa
       episode.textContent = [seasonLabel, episodeLabel].filter(Boolean).join(" • ");
       info.append(episode);
     }
-    if (!item.url) { const note = document.createElement("small"); note.textContent = "Fonte protegida ou ausente"; info.append(note); }
+    if (!item.url) { const note = document.createElement("small"); note.textContent = item.urlStatus === "redacted_auth" ? "Link protegido — importe a playlist autorizada" : "Fonte ausente"; info.append(note); }
     card.append(poster,info);
     if (item.url) card.onclick = () => onPlay?.(item);
     frag.append(card);
