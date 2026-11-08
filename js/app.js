@@ -107,7 +107,7 @@ async function admin() {
   const saved=await getPref("adminPinHash");
   $("pinGo").onclick=async()=>{
     const pin=$("pinInput").value;
-    if(!/^\\d{4}$/.test(pin)){alert("Digite exatamente 4 números.");return;}
+    if(!/^\d{4}$/.test(pin)){alert("Digite exatamente 4 números.");return;}
     const hash=await digest(pin);
     if(!saved){await setPref("adminPinHash",hash);showAdmin();}
     else if(hash===saved) showAdmin(); else alert("PIN incorreto.");
@@ -143,7 +143,7 @@ async function admin() {
   async function changePin() {
     const next=prompt("Digite o novo PIN de 4 dígitos:");
     if(next===null)return;
-    if(!/^\\d{4}$/.test(next)){alert("PIN inválido.");return;}
+    if(!/^\d{4}$/.test(next)){alert("PIN inválido.");return;}
     await setPref("adminPinHash",await digest(next)); alert("PIN atualizado neste aparelho.");
   }
 }
