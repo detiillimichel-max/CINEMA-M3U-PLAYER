@@ -85,9 +85,24 @@ function draw() {
   $("loadMore").textContent=visible<filtered.length?`Carregar mais (${Math.min(PAGE_SIZE,filtered.length-visible).toLocaleString("pt-BR")})`:"";
   $("loadMore").hidden=visible>=filtered.length;
 }
+function vlcIntent(url) {
+  try {
+    const parsed=new URL(url);
+    return `intent://${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}#Intent;scheme=${parsed.protocol.slice(0,-1)};package=org.videolan.vlc;end`;
+  } catch { return ""; }
+}
 async function openPlayer(item) {
-  if(!item.url) { $("playerMessage").textContent="Este registro não possui uma URL pública no catálogo. Importe uma playlist autorizada e atualizada pela área privada para reproduzi-lo neste aparelho."; $("playerSection").hidden=false; return; }
   $("playerSection").hidden=false; $("nowTitle").textContent=item.title; $("playerMessage").textContent="";
+  const actions=$("playerSourceActions"),source=$("openSourceLink"),vlc=$("openVlcLink");
+  if(item.url) {
+    source.href=item.url; source.hidden=false;
+    const intent=vlcIntent(item.url); vlc.href=intent; vlc.hidden=!intent;
+    actions.hidden=false;
+  } else {
+    actions.hidden=true; source.removeAttribute("href"); vlc.removeAttribute("href");
+    $("playerMessage").textContent="Este registro não possui URL pública no catálogo. Links com autenticação não são publicados para evitar expor credenciais. Se você possui a playlist autorizada, importe-a neste aparelho.";
+    $("playerSection").scrollIntoView({behavior:"smooth",block:"start"}); return;
+  }
   $("playerSection").scrollIntoView({behavior:"smooth",block:"start"});
   await playMedia($("videoPlayer"),item,m=>$("playerMessage").textContent=m);
   history=await addHistory(item);
