@@ -3,7 +3,7 @@
 import hashlib, json, re, unicodedata, urllib.parse
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-MASTER=ROOT/"data/catalog/catalogo-cinema-mestre-sanitizado.json"
+MASTER=ROOT/"data/catalog/catalogo-cinema.json"
 INBOX=ROOT/"data/discovery/inbox"
 REVIEW=ROOT/"data/discovery/review-candidates.json"
 APPROVALS=ROOT/"data/discovery/approved.json"
