@@ -1,0 +1,8 @@
+const DB='cinema-m3u-db',VERSION=1;let dbPromise;
+function db(){if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const r=indexedDB.open(DB,VERSION);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('playlists'))d.createObjectStore('playlists',{keyPath:'id'});if(!d.objectStoreNames.contains('prefs'))d.createObjectStore('prefs',{keyPath:'key'});};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});return dbPromise;}
+export async function put(store,value){const d=await db();return new Promise((res,rej)=>{const t=d.transaction(store,'readwrite');t.objectStore(store).put(value);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);});}
+export async function getAll(store){const d=await db();return new Promise((res,rej)=>{const r=d.transaction(store).objectStore(store).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error);});}
+export async function get(store,key){const d=await db();return new Promise((res,rej)=>{const r=d.transaction(store).objectStore(store).get(key);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+export async function remove(store,key){const d=await db();return new Promise((res,rej)=>{const t=d.transaction(store,'readwrite');t.objectStore(store).delete(key);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);});}
+export async function getPref(key,fallback=null){const v=await get('prefs',key);return v?.value??fallback;}
+export async function setPref(key,value){return put('prefs',{key,value});}
