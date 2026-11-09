@@ -1,0 +1,19 @@
+name: Cinema HTTPS Playback Audit
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Probe HTTPS sample
+        run: python scripts/audit_https_sample.py
+      - name: Publish report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/audit/https-sample-report.json
+          git diff --cached --quiet || (git commit -m "Add HTTPS playback audit report" && git push)
