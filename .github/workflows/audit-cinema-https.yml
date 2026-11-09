@@ -1,6 +1,11 @@
 name: Cinema HTTPS Playback Audit
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'Cinema.txt'
+      - 'scripts/audit_https_sample.py'
+      - '.github/workflows/audit-cinema-https.yml'
 permissions:
   contents: write
 jobs:
